@@ -8,6 +8,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 namespace MZZT {
 	/// <summary>
 	/// This class encompases the ability for the user to select a file or folder from a browse dialog.

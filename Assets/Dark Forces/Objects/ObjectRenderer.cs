@@ -10,6 +10,21 @@ namespace MZZT.DarkForces {
 	/// Base class for rendering an object in Unity.
 	/// </summary>
 	public class ObjectRenderer : MonoBehaviour {
+
+		/// <summary>
+		/// Stores the camera update boolean
+		/// </summary>
+		public bool updateCamera { get; set; }
+
+		/// <summary>
+		/// Don't update camera if you are updating showcase from an editor.
+		/// </summary>
+		/// <param name="updateCamera">Update Camera Position</param>
+		public ObjectRenderer(bool updateCamera=true)
+		{
+			this.updateCamera = updateCamera;
+		}
+
 		/// <summary>
 		/// The object we're rendering.
 		/// </summary>
@@ -24,10 +39,14 @@ namespace MZZT.DarkForces {
 		/// Generate the visual representation of the object in Unity.
 		/// </summary>
 		/// <param name="obj">The object.</param>
-		public virtual Task RenderAsync(DfLevelObjects.Object obj) {
+		public virtual Task RenderAsync(DfLevelObjects.Object obj ) {
 			this.Object = obj;
 
-			this.gameObject.name = string.IsNullOrEmpty(obj.FileName) ? obj.Type.ToString() : $"{obj.Type} - {obj.FileName}";
+			// Store object as a hash instead of #
+			this.gameObject.name = obj.GetHashCode().ToString();
+			
+            //this.gameObject.name = LevelLoader.Instance.Objects.Objects.IndexOf(obj).ToString();
+			//this.gameObject.name = string.IsNullOrEmpty(obj.FileName) ? obj.Type.ToString() : $"{obj.Type} - {obj.FileName}";
 
 			Vector3 position = new Vector3(
 				obj.Position.X * LevelGeometryGenerator.GEOMETRY_SCALE,
@@ -94,7 +113,7 @@ namespace MZZT.DarkForces {
 			if (logic.TryGetValue("EYE", out string[] strEye) && strEye.Length > 0) {
 				bool.TryParse(strEye[0], out eye);
 			}
-			if (eye) {
+			if (eye && this.updateCamera) {
 				Camera.main.transform.SetPositionAndRotation(position - ObjectGenerator.KYLE_EYE_POSITION * LevelGeometryGenerator.GEOMETRY_SCALE, rotation);
 			}
 

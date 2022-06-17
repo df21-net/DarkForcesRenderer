@@ -6,6 +6,8 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace MZZT.DarkForces.FileFormats {
 	/// <summary>
@@ -45,6 +47,7 @@ namespace MZZT.DarkForces.FileFormats {
 		/// <summary>
 		/// Difficulty levels for objects.
 		/// </summary>
+		[JsonConverter(typeof(StringEnumConverter))]
 		public enum Difficulties {
 			Easy = -1,
 			EasyMedium = -2,
@@ -82,6 +85,15 @@ namespace MZZT.DarkForces.FileFormats {
 			/// </summary>
 			public string Logic { get; set; }
 
+
+			/// <summary>
+			/// Need the hash to to compare the vector positions.
+			/// </summary>
+			public override int GetHashCode()
+			{
+				return this.Position.GetHashCode() ^ this.EulerAngles.GetHashCode() << 2 ;				
+			}
+
 			object ICloneable.Clone() => this.Clone();
 			public Object Clone() => new() {
 				Difficulty = this.Difficulty,
@@ -100,7 +112,7 @@ namespace MZZT.DarkForces.FileFormats {
 		/// <summary>
 		/// The objects in this file.
 		/// </summary>
-		public List<Object> Objects { get; } = new();
+		public List<Object> Objects { get; set;  } = new();
 
 		public override bool CanLoad => true;
 		

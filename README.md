@@ -1,10 +1,18 @@
-# Dark Forces Library for .NET and Unity
+# Dark Forces Library for .NET and Unity with WDFUSE Support
+
+Please visit [DF-21](https://df-21.net) for support.
 
 Find out more about Star Wars Dark Forces on [Wikipedia](https://en.wikipedia.org/wiki/Star_Wars:_Dark_Forces).
 
 Purchase a copy of the game on [Steam](https://store.steampowered.com/app/32400/STAR_WARS__Dark_Forces/)! In fact, buy that Jedi Knight Collection while you're there. They're all good games.
 
 This toolkit is intended to allow for .NET/Unity developers to consume or generate Dark Forces data files, as well as provide additional tools to Unity developers to create Dark Forces clones or toolkits.
+
+
+## Update 2022
+
+This new version communicates with Dark Forces editor WDFUSE (version 2.70+) . Additionally, a new overlay showing game positions has been added
+
 
 ## Version Compatibility
 

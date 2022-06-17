@@ -1,7 +1,16 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using MZZT.DarkForces.FileFormats;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using MZZT.DarkForces;
+
 
 namespace MZZT {
+
+	
 	public class CameraControl : MonoBehaviour {
 		[SerializeField]
 		private Vector2 lookSensitivity = Vector2.one;
@@ -31,9 +40,20 @@ namespace MZZT {
 		private Vector2 yAngleClamp = new Vector2(-60, 60);
 		[SerializeField]
 		private bool invertY = true;
+
+		[SerializeField]
+		public bool enableCameraPos = false;
+
+
 		public bool InvertY {
 			get => this.invertY;
 			set => this.invertY = value;
+		}
+
+		public bool CamPosition
+		{
+			get => this.enableCameraPos;
+			set => this.enableCameraPos = value;
 		}
 
 		private Vector2 lookDelta;
@@ -55,6 +75,23 @@ namespace MZZT {
 		public void OnRun(InputAction.CallbackContext context) {
 			this.running = context.ReadValueAsButton();
 		}
+
+		void OnGUI()
+		{
+			if (this.enableCameraPos == true)
+			{
+				GUIStyle PosStyle = new GUIStyle();
+				PosStyle.normal.textColor = Color.red;
+				PosStyle.fontSize = 30;
+				Vector3 origpos = Camera.main.transform.position;
+				origpos.x = origpos.x / LevelGeometryGenerator.GEOMETRY_SCALE;
+				origpos.y = origpos.y / LevelGeometryGenerator.GEOMETRY_SCALE;
+				origpos.z = origpos.z / LevelGeometryGenerator.GEOMETRY_SCALE;
+				GUI.Label(new Rect(10, 10, 100, 20), string.Format("POS {0}",
+						  origpos), PosStyle);
+			}
+		}
+		
 
 		private void Look(Vector2 value) {
 			Transform camera = Camera.main.transform;
@@ -103,6 +140,7 @@ namespace MZZT {
 					this.UpDown(this.upDownDelta);
 				}
 			}
+
 		}
 	}
 }

@@ -40,6 +40,8 @@ namespace MZZT.DarkForces.Showcase {
 		private Slider volume = null;
 		[SerializeField]
 		private Toggle warnings = null;
+		[SerializeField]
+		private Toggle camPositions = null;
 
 		protected override void Start() {
 			base.Start();
@@ -96,6 +98,9 @@ namespace MZZT.DarkForces.Showcase {
 			this.cameraControl.UpDownSensitivity = this.moveSen.value;
 			this.cameraControl.InvertY = this.invertY.isOn;
 			this.cameraControl.GetComponent<CapsuleCollider>().enabled = !this.noclip.isOn;
+
+			// Handle the camera pos overlay
+			this.cameraControl.CamPosition = this.camPositions.isOn;
 
 			bool showAllLayers = this.layerSelection.value == 0;
 			int layer = showAllLayers ? 0 : this.layers[this.layerSelection.value - 1];

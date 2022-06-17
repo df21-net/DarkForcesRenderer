@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using static MZZT.DarkForces.FileFormats.DfLevel;
 using Debug = UnityEngine.Debug;
+using System.Collections.Generic;
 
 namespace MZZT.DarkForces {
 	/// <summary>
@@ -43,17 +44,67 @@ namespace MZZT.DarkForces {
 		}
 
 		/// <summary>
+        /// Delete a specific sector geometry
+        /// </summary>
+        /// <param name="SecId">ID of Sector to delete</param>
+		public void DeleteObjectByHash(Sector SecId)
+		{
+			// We store the sector data as a HASH so we can isntantly find it. We cannot use a sector # because the #
+			// changes as we add or delete sectors. Hash of a sector is the only solid way to keep track of them. 
+			// When finding the game object that matches the sector hash - we delete it. 
+			foreach (GameObject child in this.transform.Cast<Transform>().Select(x => x.gameObject).ToArray())
+			{
+				if (child.name == SecId.GetHashCode().ToString())
+				{			
+					// Sector 
+					foreach (Transform sccomponent in child.transform)
+                    {
+						string componentname = sccomponent.gameObject.name;
+						
+						// Floor Ceiling
+						if (componentname == "Floor" || componentname == "Ceiling")
+                        {
+							DestroyImmediate(sccomponent.gameObject);
+						}
+						
+						// Walls
+                        else
+                        {
+							foreach (Transform wallcomponent in sccomponent.gameObject.transform)
+                            {
+								DestroyImmediate(wallcomponent.gameObject);
+							}
+						}
+                    }
+
+					DestroyImmediate(child);
+				}
+			}
+		}
+
+		/// <summary>
 		/// Generate geometry for level.
 		/// </summary>
-		public async Task GenerateAsync() {
-			this.Clear();
+		public async Task GenerateAsync(List<int> sectorFilters) {
+
+			// Don't destroy geometry if you are filtering. Use cache. 
+			//this.Clear();
+			if (sectorFilters == null) this.Clear();
 
 			Stopwatch watch = new Stopwatch();
 			watch.Start();
 
 			foreach ((Sector sectorInfo, int i) in LevelLoader.Instance.Level.Sectors.Select((x, i) => (x, i))) {
+
+				// Filter pre-built geometry
+				if (sectorFilters.Count > 0 && !sectorFilters.Contains(i))
+				{
+					continue;
+				}
+
 				GameObject sector = new GameObject {
-					name = sectorInfo.Name ?? LevelLoader.Instance.Level.Sectors.IndexOf(sectorInfo).ToString(),
+					name = LevelLoader.Instance.Level.Sectors.IndexOf(sectorInfo).ToString(),
+					//name = sectorInfo.Name ?? LevelLoader.Instance.Level.Sectors.IndexOf(sectorInfo).ToString(),
 					layer = LayerMask.NameToLayer("Geometry")
 				};
 				sector.transform.SetParent(this.transform);

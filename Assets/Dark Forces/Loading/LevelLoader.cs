@@ -5,11 +5,25 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using System.Net;
+using System.Net.Sockets;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Schema;
 
 namespace MZZT.DarkForces {
 	/// <summary>
 	/// Loads a level and all related data.
 	/// </summary>
+	/// 
+	
+	[Serializable]
+	public class MyClass
+	{
+		public int level;
+		public float timeElapsed;
+		public string playerName;
+	}
+
 	public class LevelLoader : Singleton<LevelLoader> {
 		/// <summary>
 		/// The data from the LEV file.
@@ -52,22 +66,28 @@ namespace MZZT.DarkForces {
 		/// <summary>
 		/// Load JEDI.LVL.
 		/// </summary>
-		public async Task LoadLevelListAsync(bool addHiddenLevels = false) {
+		public async Task LoadLevelListAsync(bool addHiddenLevels = false, bool FirstTime = true) {
 			this.LevelList = null;
 
-			await PauseMenu.Instance.BeginLoadingAsync();
+			if (FirstTime) { await PauseMenu.Instance.BeginLoadingAsync(); }
 
 			try {
 				this.LevelList = await FileLoader.Instance.LoadGobFileAsync<DfLevelList>("JEDI.LVL");
+				Debug.Log("Loading Level List success");
 			} catch (Exception e) {
 				ResourceCache.Instance.AddError("JEDI.LVL", e);
 
 				this.LevelList = new DfLevelList();
+				Debug.Log("Loading Level List fail");
 			}
 
+			Debug.Log(string.Format("total level list size is {0}", this.LevelList.Levels.Count));
+
 			if (addHiddenLevels) {
+				Debug.Log("oh no ... going for hidden maps");
 				// Find the GOB file with the levels.
 				string path = Mod.Instance.Gob ?? Path.Combine(FileLoader.Instance.DarkForcesFolder, "DARK.GOB");
+				Debug.Log("Got past path");
 				// Find any .LEV files in that GOB.
 				string[] levels = FileLoader.Instance.FindGobFiles("*.LEV", path).Select(x => x.ToUpper()).ToArray();
 				// Exclude any files in the level list.
@@ -79,42 +99,54 @@ namespace MZZT.DarkForces {
 				}));
 			}
 
-			PauseMenu.Instance.EndLoading();
+			if (FirstTime) { PauseMenu.Instance.EndLoading(); }
 		}
 
 		/// <summary>
 		/// Load a level's CMP file.
 		/// </summary>
-		public async Task LoadColormapAsync() {
+		public async Task LoadColormapAsync(bool FirstTime = true) {
 			this.ColorMap = null;
 
-			await PauseMenu.Instance.BeginLoadingAsync();
+			if (FirstTime)
+			{
+				await PauseMenu.Instance.BeginLoadingAsync();
+			}
 
 			string levelFile = this.CurrentLevelName;
 
 			this.ColorMap = await ResourceCache.Instance.GetColormapAsync($"{levelFile}.CMP");
 
-			PauseMenu.Instance.EndLoading();
+			if (FirstTime)
+			{
+				PauseMenu.Instance.EndLoading();
+			}
 		}
 
 		/// <summary>
 		/// Load a level's PAL file.
 		/// </summary>
-		public async Task LoadPaletteAsync() {
+		public async Task LoadPaletteAsync(bool FirstTime = true) {
 			this.Palette = null;
 
-			await PauseMenu.Instance.BeginLoadingAsync();
+			if (FirstTime)
+			{
+				await PauseMenu.Instance.BeginLoadingAsync();
+			}
 
 			this.Palette = await ResourceCache.Instance.GetPaletteAsync(this.Level.PaletteFile);
 
-			PauseMenu.Instance.EndLoading();
+			if (FirstTime)
+			{
+				PauseMenu.Instance.EndLoading();
+			}
 		}
 
 		/// <summary>
 		/// Load a level's LEV file.
 		/// </summary>
 		/// <param name="levelIndex">The index of the level in JEDI.LVL.</param>
-		public async Task LoadLevelAsync(int levelIndex) {
+		public async Task LoadLevelAsync(int levelIndex, bool FirstTime = true) {
 			if (Parallaxer.Instance != null) {
 				Parallaxer.Instance.Reset();
 			}
@@ -123,9 +155,13 @@ namespace MZZT.DarkForces {
 
 			this.currentLevel = levelIndex;
 
-			await PauseMenu.Instance.BeginLoadingAsync();
-
+			if (FirstTime)
+			{
+				await PauseMenu.Instance.BeginLoadingAsync();
+			}
+			Debug.Log(string.Format("Loading lvl index {0} with value {1}", levelIndex, this.CurrentLevelName));
 			string levelFile = this.CurrentLevelName;
+
 
 			try {
 				this.Level = await FileLoader.Instance.LoadGobFileAsync<DfLevel>($"{levelFile}.LEV");
@@ -140,23 +176,31 @@ namespace MZZT.DarkForces {
 				}
 			}
 
-			PauseMenu.Instance.EndLoading();
+			Debug.Log(string.Format("Loaded {0} sectors", this.Level.Sectors.Count));
+			
+			if (FirstTime)
+			{
+				PauseMenu.Instance.EndLoading();
+			}
 		}
 
 		/// <summary>
 		/// Load a level's INF file.
 		/// </summary>
-		public async Task LoadInformationAsync() {
+		public async Task LoadInformationAsync(bool FirstTime = true) {
 			this.Information = null;
 
-			await PauseMenu.Instance.BeginLoadingAsync();
+			if (FirstTime)
+			{
+				await PauseMenu.Instance.BeginLoadingAsync();
+			}
 
 			string levelFile = this.CurrentLevelName;
 
 			try {
 				this.Information = await FileLoader.Instance.LoadGobFileAsync<DfLevelInformation>($"{levelFile}.INF");
 				if (this.Level != null) {
-					this.Information.LoadSectorReferences(this.Level);
+					this.Information.LoadSectorReferences(this.Level);					
 				}
 			} catch (Exception ex) {
 				ResourceCache.Instance.AddError($"{levelFile}.INF", ex);
@@ -165,16 +209,22 @@ namespace MZZT.DarkForces {
 				ResourceCache.Instance.AddWarnings($"{levelFile}.INF", this.Information);
 			}
 
-			PauseMenu.Instance.EndLoading();
+			if (FirstTime)
+			{
+				PauseMenu.Instance.EndLoading();
+			}
 		}
 
 		/// <summary>
 		/// Load a level's O file.
 		/// </summary>
-		public async Task LoadObjectsAsync() {
+		public async Task LoadObjectsAsync(bool FirstTime = true) {
 			this.Objects = null;
 
-			await PauseMenu.Instance.BeginLoadingAsync();
+			if (FirstTime)
+			{
+				await PauseMenu.Instance.BeginLoadingAsync();
+			}
 
 			string levelFile = this.CurrentLevelName;
 
@@ -186,8 +236,18 @@ namespace MZZT.DarkForces {
 			if (this.Objects != null) {
 				ResourceCache.Instance.AddWarnings($"{levelFile}.O", this.Objects);
 			}
+			/*
+			for (int i = 0; i < LevelLoader.Instance.Objects.Objects.Count; i++)
+			{
+				FileFormats.DfLevelObjects.Object obj = LevelLoader.Instance.Objects.Objects[i];
+				Debug.Log(string.Format("Obj {0} Hash {1} OBJPOS {2} OBJLOG {3}", i, obj.GetHashCode(), obj.Position, obj.Logic));
+			}*/
 
-			PauseMenu.Instance.EndLoading();
+			Debug.Log(string.Format("Loaded {0} objects", this.Objects.Objects.Count));
+			if (FirstTime)
+			{
+				PauseMenu.Instance.EndLoading();
+			}
 		}
 
 		/// <summary>
@@ -221,5 +281,6 @@ namespace MZZT.DarkForces {
 			}
 			ResourceCache.Instance.ClearWarnings();
 		}
+
 	}
 }

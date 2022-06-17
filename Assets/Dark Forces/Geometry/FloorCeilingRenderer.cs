@@ -8,13 +8,16 @@ using MZZT.DarkForces.FileFormats;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
-namespace MZZT.DarkForces {
+namespace MZZT.DarkForces
+{
 	/// <summary>
 	/// Creates the geometry for floors and ceilings.
 	/// </summary>
-	public class FloorCeilingRenderer : MonoBehaviour {
+	public class FloorCeilingRenderer : MonoBehaviour
+	{
 		// Based off of sample code from https://www.habrador.com/tutorials/math/5-line-line-intersection/
-		private static bool IsIntersecting(Vector2 l1_start, Vector2 l1_end, Vector2 l2_start, Vector2 l2_end) {
+		private static bool IsIntersecting(Vector2 l1_start, Vector2 l1_end, Vector2 l2_start, Vector2 l2_end)
+		{
 			//Direction of the lines
 			Vector2 l1_dir = (l1_end - l1_start).normalized;
 			Vector2 l2_dir = (l2_end - l2_start).normalized;
@@ -42,13 +45,16 @@ namespace MZZT.DarkForces {
 			// this line as a polygon line.
 
 			//Step 2: are the lines parallel? -> no solutions
-			if (IsParallel(l1_normal, l2_normal)) {
+			if (IsParallel(l1_normal, l2_normal))
+			{
 				//Step 3: are the lines the same line? -> infinite amount of solutions
 				//Pick one point on each line and test if the vector between the points is orthogonal to one of the normals
-				if (IsOrthogonal(l1_start - l2_start, l1_normal)) {
+				if (IsOrthogonal(l1_start - l2_start, l1_normal))
+				{
 					//Debug.Log("Same line so infinite amount of solutions!");
 					if (IsBetween(l1_start, l1_end, l2_start) || IsBetween(l1_start, l1_end, l2_end) ||
-						IsBetween(l2_start, l2_end, l1_start) || IsBetween(l2_start, l2_end, l1_end)) {
+						IsBetween(l2_start, l2_end, l1_start) || IsBetween(l2_start, l2_end, l1_end))
+					{
 
 						return true;
 					}
@@ -71,9 +77,11 @@ namespace MZZT.DarkForces {
 		}
 
 		//Are 2 vectors parallel?
-		private static bool IsParallel(Vector2 v1, Vector2 v2) {
+		private static bool IsParallel(Vector2 v1, Vector2 v2)
+		{
 			//2 vectors are parallel if the angle between the vectors are 0 or 180 degrees
-			if (Vector2.Angle(v1, v2) == 0f || Vector2.Angle(v1, v2) == 180f) {
+			if (Vector2.Angle(v1, v2) == 0f || Vector2.Angle(v1, v2) == 180f)
+			{
 				return true;
 			}
 
@@ -81,14 +89,16 @@ namespace MZZT.DarkForces {
 		}
 
 		//Are 2 vectors orthogonal?
-		private static bool IsOrthogonal(Vector2 v1, Vector2 v2) {
+		private static bool IsOrthogonal(Vector2 v1, Vector2 v2)
+		{
 			//2 vectors are orthogonal is the dot product is 0
 			//We have to check if close to 0 because of floating numbers
 			return Mathf.Abs(Vector2.Dot(v1, v2)) < 0.000001f;
 		}
 
 		//Is a point c between 2 other points a and b?
-		private static bool IsBetween(Vector2 a, Vector2 b, Vector2 c) {
+		private static bool IsBetween(Vector2 a, Vector2 b, Vector2 c)
+		{
 			bool isBetween = false;
 
 			//Entire line segment
@@ -99,18 +109,20 @@ namespace MZZT.DarkForces {
 			//Need to check 2 things: 
 			//1. If the vectors are pointing in the same direction = if the dot product is positive
 			//2. If the length of the vector between the intersection and the first point is smaller than the entire line
-			if (Vector2.Dot(ab, ac) > 0f && ab.sqrMagnitude >= ac.sqrMagnitude) {
+			if (Vector2.Dot(ab, ac) > 0f && ab.sqrMagnitude >= ac.sqrMagnitude)
+			{
 				isBetween = true;
 			}
 
 			return isBetween;
 		}
 
-		private static (bool, float) TestCandidateVertices(IEnumerable<List<Vertex>> shapes, Vertex previous, Vertex[] candidate, Vertex next) {
+		private static (bool, float) TestCandidateVertices(IEnumerable<List<Vertex>> shapes, Vertex previous, Vertex[] candidate, Vertex next)
+		{
 			// This function determines if a candidate polygon is entirely within the bounds of the sector.
 
 			Vector2[] vectors = candidate.Select(x => x.Position.ToUnity()).ToArray();
-			
+
 			// These three points are three consecutive points around the outer edge of the sector
 			// (specifically the parts not yet made into floor/ceiling).
 
@@ -118,7 +130,8 @@ namespace MZZT.DarkForces {
 			Vector2 wall1dir = vectors[1] - vectors[0];
 			Vector2 wall2dir = vectors[2] - vectors[1];
 			float angle = Vector2.SignedAngle(wall1dir, wall2dir);
-			if (angle > 0 && angle < 180) {
+			if (angle > 0 && angle < 180)
+			{
 				return (false, 0);
 			}
 
@@ -130,7 +143,8 @@ namespace MZZT.DarkForces {
 			wall1dir = vectors[1] - vectors[0];
 			wall2dir = vectors[2] - vectors[0];
 			float angle1 = Vector2.SignedAngle(wall2dir, wall1dir);
-			if (angle1 < 0) {
+			if (angle1 < 0)
+			{
 				angle1 += 360;
 			}
 
@@ -138,13 +152,15 @@ namespace MZZT.DarkForces {
 			Vector2 vNext = previous.Position.ToUnity();
 			Vector2 wall3dir = vNext - vectors[0];
 			float angle2 = Vector2.SignedAngle(wall3dir, wall1dir);
-			if (angle2 < 0) {
+			if (angle2 < 0)
+			{
 				angle2 += 360;
 			}
 
 			// This determines if the new line would be between previous and vector 1's angles.
 			// If so the line goes inside the sector. Otherwise it goes outside.
-			if (angle2 < angle1) {
+			if (angle2 < angle1)
+			{
 				return (false, 0);
 			}
 
@@ -153,7 +169,8 @@ namespace MZZT.DarkForces {
 			wall1dir = vectors[0] - vectors[2];
 			wall2dir = vectors[1] - vectors[2];
 			angle1 = Vector2.SignedAngle(wall2dir, wall1dir);
-			if (angle1 < 0) {
+			if (angle1 < 0)
+			{
 				angle1 += 360;
 			}
 
@@ -161,13 +178,15 @@ namespace MZZT.DarkForces {
 			vNext = next.Position.ToUnity();
 			wall3dir = vNext - vectors[2];
 			angle2 = Vector2.SignedAngle(wall2dir, wall3dir);
-			if (angle2 < 0) {
+			if (angle2 < 0)
+			{
 				angle2 += 360;
 			}
 
 			// We expect the vector 0 line to be in between the vector 1 line and the next line.
 			// If so the line is inside the sector.
-			if (angle2 < angle1) {
+			if (angle2 < angle1)
+			{
 				return (false, 0);
 			}
 
@@ -177,25 +196,32 @@ namespace MZZT.DarkForces {
 			Vector2 start1 = vectors[2];
 			Vector2 end1 = vectors[0];
 			// Iterate through all borders of the sector.
-			foreach (List<Vertex> shape in shapes) {
-				for (int i = 0; i < shape.Count; i++) {
+			foreach (List<Vertex> shape in shapes)
+			{
+				for (int i = 0; i < shape.Count; i++)
+				{
 					/*if (i == (pos + outerShape.Count - 1) % outerShape.Count | i == pos % outerShape.Count || i == (pos + 1) % outerShape.Count || i == (pos + 2) % outerShape.Count) {
 						continue;
 					}*/
 					Vertex start2 = shape[i];
 					Vertex end2;
-					if (i + 1 == shape.Count) {
+					if (i + 1 == shape.Count)
+					{
 						end2 = shape[0];
-					} else {
+					}
+					else
+					{
 						end2 = shape[i + 1];
 					}
-					if (candidate.Contains(start2) || candidate.Contains(end2)) {
+					if (candidate.Contains(start2) || candidate.Contains(end2))
+					{
 						// We already tested these before.
 						continue;
 					}
 
 					// Check to see if the new line crosses.
-					if (IsIntersecting(start1, end1, start2.Position.ToUnity(), end2.Position.ToUnity())) {
+					if (IsIntersecting(start1, end1, start2.Position.ToUnity(), end2.Position.ToUnity()))
+					{
 						return (false, 0);
 					}
 				}
@@ -205,7 +231,8 @@ namespace MZZT.DarkForces {
 		}
 
 		private static (bool, float) TestCandidateVertices2(IEnumerable<List<Vertex>> shapes,
-			Vertex previous, Vertex[] candidate, Vertex next, Vertex previous2, Vertex next2) {
+			Vertex previous, Vertex[] candidate, Vertex next, Vertex previous2, Vertex next2)
+		{
 
 			// This is an alternate method specifically for dealing with subsectors.
 
@@ -220,41 +247,48 @@ namespace MZZT.DarkForces {
 			Vector2 wall1dir = vectors[1] - vectors[0];
 			Vector2 wall2dir = vectors[2] - vectors[1];
 			float angle = Vector2.SignedAngle(wall1dir, wall2dir);
-			if (angle > 0 && angle < 180) {
+			if (angle > 0 && angle < 180)
+			{
 				return (false, 0);
 			}
 
 			wall1dir = vectors[1] - vectors[0];
 			wall2dir = vectors[2] - vectors[0];
 			float angle1 = Vector2.SignedAngle(wall2dir, wall1dir);
-			if (angle1 < 0) {
+			if (angle1 < 0)
+			{
 				angle1 += 360;
 			}
 
 			Vector2 neighbor = previous.Position.ToUnity();
 			Vector2 wall3dir = neighbor - vectors[0];
 			float angle2 = Vector2.SignedAngle(wall3dir, wall1dir);
-			if (angle2 < 0) {
+			if (angle2 < 0)
+			{
 				angle2 += 360;
 			}
-			if (angle2 < angle1) {
+			if (angle2 < angle1)
+			{
 				return (false, 0);
 			}
 
 			wall1dir = vectors[0] - vectors[1];
 			wall2dir = vectors[2] - vectors[1];
 			angle1 = Vector2.SignedAngle(wall1dir, wall2dir);
-			if (angle1 < 0) {
+			if (angle1 < 0)
+			{
 				angle1 += 360;
 			}
 
 			neighbor = next.Position.ToUnity();
 			wall3dir = neighbor - vectors[1];
 			angle2 = Vector2.SignedAngle(wall1dir, wall3dir);
-			if (angle2 < 0) {
+			if (angle2 < 0)
+			{
 				angle2 += 360;
 			}
-			if (angle2 < angle1) {
+			if (angle2 < angle1)
+			{
 				return (false, 0);
 			}
 
@@ -269,7 +303,8 @@ namespace MZZT.DarkForces {
 			wall1dir = vectors[2] - neighbor;
 			wall2dir = vectors[2] - neighbor2;
 			angle1 = Vector2.SignedAngle(wall1dir, wall2dir);
-			if (angle1 < 0) {
+			if (angle1 < 0)
+			{
 				angle1 += 360;
 			}
 
@@ -278,20 +313,24 @@ namespace MZZT.DarkForces {
 			wall3dir = vectors[2] - vectors[0];
 
 			angle2 = Vector2.SignedAngle(wall1dir, wall3dir);
-			if (angle2 < 0) {
+			if (angle2 < 0)
+			{
 				angle2 += 360;
 			}
-			if (angle2 > angle1) {
+			if (angle2 > angle1)
+			{
 				return (false, 0);
 			}
 
 			wall3dir = vectors[2] - vectors[1];
 
 			angle2 = Vector2.SignedAngle(wall1dir, wall3dir);
-			if (angle2 < 0) {
+			if (angle2 < 0)
+			{
 				angle2 += 360;
 			}
-			if (angle2 > angle1) {
+			if (angle2 > angle1)
+			{
 				return (false, 0);
 			}
 
@@ -301,32 +340,40 @@ namespace MZZT.DarkForces {
 			Vector2 start1 = vectors[2];
 			Vector2 end1a = vectors[0];
 			Vector2 end1b = vectors[1];
-			foreach (List<Vertex> shape in shapes) {
-				for (int i = 0; i < shape.Count; i++) {
+			foreach (List<Vertex> shape in shapes)
+			{
+				for (int i = 0; i < shape.Count; i++)
+				{
 					/*if (i == (pos + outerShape.Count - 1) % outerShape.Count | i == pos % outerShape.Count || i == (pos + 1) % outerShape.Count || i == (pos + 2) % outerShape.Count) {
 						continue;
 					}*/
 					Vertex start2 = shape[i];
 					Vertex end2;
-					if (i + 1 == shape.Count) {
+					if (i + 1 == shape.Count)
+					{
 						end2 = shape[0];
-					} else {
+					}
+					else
+					{
 						end2 = shape[i + 1];
 					}
-					if (candidate.Contains(start2) || candidate.Contains(end2)) {
+					if (candidate.Contains(start2) || candidate.Contains(end2))
+					{
 						continue;
 					}
 
 					if (IsIntersecting(start1, end1a,
 						start2.Position.ToUnity(),
-						end2.Position.ToUnity())) {
+						end2.Position.ToUnity()))
+					{
 
 						return (false, 0);
 					}
 
 					if (IsIntersecting(start1, end1b,
 						start2.Position.ToUnity(),
-						end2.Position.ToUnity())) {
+						end2.Position.ToUnity()))
+					{
 
 						return (false, 0);
 					}
@@ -341,7 +388,8 @@ namespace MZZT.DarkForces {
 		/// </summary>
 		/// <param name="sector">The sector.</param>
 		/// <returns>An array of vertex indices, in groups of three, defining triangles for the polygons.</returns>
-		public static int[] SplitIntoFloorTris(Sector sector) {
+		public static int[] SplitIntoFloorTris(Sector sector)
+		{
 			// Allow quick lookup of a wall based on its left vertex.
 			Dictionary<Vertex, int> map = sector.Walls
 				.GroupBy(x => x.LeftVertex)
@@ -355,10 +403,12 @@ namespace MZZT.DarkForces {
 			// We want to know what we're dealing with so figure out the shapes we can make with the walls.
 
 			// First do some easy checks for invalid or duplicate walls we can safely remove from consideration.
-			for (int i = 0; i < pendingWalls.Count; i++) {
+			for (int i = 0; i < pendingWalls.Count; i++)
+			{
 				Wall wall = pendingWalls[i];
 				// Simple check for invalid wall.
-				if (wall.LeftVertex == wall.RightVertex) {
+				if (wall.LeftVertex == wall.RightVertex)
+				{
 					// Ignore it.
 					pendingWalls.Remove(wall);
 					i--;
@@ -370,7 +420,8 @@ namespace MZZT.DarkForces {
 				if (pendingWalls.Skip(i + 1).Where(x =>
 					(x.LeftVertex == wall.RightVertex && x.RightVertex == wall.LeftVertex) ||
 					(x.LeftVertex == wall.LeftVertex && x.RightVertex == wall.RightVertex)
-				).Any()) {
+				).Any())
+				{
 					pendingWalls.RemoveAll(x =>
 						(x.LeftVertex == wall.RightVertex && x.RightVertex == wall.LeftVertex) ||
 						(x.LeftVertex == wall.LeftVertex && x.RightVertex == wall.RightVertex)
@@ -380,7 +431,8 @@ namespace MZZT.DarkForces {
 			}
 
 			// Now we can try and make shapes.
-			while (pendingWalls.Count > 0) {
+			while (pendingWalls.Count > 0)
+			{
 				List<Wall> currentShape = new List<Wall>();
 				shapes.Add(currentShape);
 
@@ -388,9 +440,11 @@ namespace MZZT.DarkForces {
 				pendingWalls.Remove(wall);
 				currentShape.Add(wall);
 
-				while (currentShape[0].LeftVertex != currentShape[currentShape.Count - 1].RightVertex) {
+				while (currentShape[0].LeftVertex != currentShape[currentShape.Count - 1].RightVertex)
+				{
 					Wall nextWall = pendingWalls.FirstOrDefault(x => x.LeftVertex == wall.RightVertex);
-					if (nextWall == null) {
+					if (nextWall == null)
+					{
 						//Debug.LogWarning($"Sector {this.lev.Sectors.IndexOf(sector)} is not completely enclosed!");
 						shapes.Remove(currentShape);
 						break;
@@ -402,7 +456,8 @@ namespace MZZT.DarkForces {
 			}
 
 			// Weird sector (no volume?), can't make floor for it!
-			if (shapes.Count < 1) {
+			if (shapes.Count < 1)
+			{
 				return Array.Empty<int>();
 			}
 
@@ -433,15 +488,17 @@ namespace MZZT.DarkForces {
 			// Otherwise it's an inner shape.
 			// Inner shape's bounding boxes should fit inside of their outer shape's.
 			// With these bits of data it's possible to run the code below for each outer shape and its respective inner shapes.
-			
+
 			// We only need vertices now.
 			List<Vertex> outerShape = outer.Select(x => x.LeftVertex).ToList();
 
 			// Assume shapes that morph won't have anything inside of them so we can generate the floor through that space..
 			// This would make morphing them easier since we don't need to regenerate the floor every frame.
-			for (int i = 0; i < shapes.Count; i++) {
+			for (int i = 0; i < shapes.Count; i++)
+			{
 				List<Wall> shape = shapes[i];
-				if (shape.All(x => x.TextureAndMapFlags.HasFlag(WallTextureAndMapFlags.WallMorphsWithElevator))) {
+				if (shape.All(x => x.TextureAndMapFlags.HasFlag(WallTextureAndMapFlags.WallMorphsWithElevator)))
+				{
 					shapes.Remove(shape);
 					i--;
 				}
@@ -462,16 +519,20 @@ namespace MZZT.DarkForces {
 
 			// Process inner shapes first, to get a single contiguous outer shape.
 			// This makes the algorithm for processing that shape simpler.
-			while (innerShapes.Count > 0) {
+			while (innerShapes.Count > 0)
+			{
 				List<Vertex> innerShape = innerShapes[0];
 				bool merged = false;
 				// Try each inner shape vertex.
-				for (int j = 0; j < innerShape.Count; j++) {
+				for (int j = 0; j < innerShape.Count; j++)
+				{
 					// We want to try to join this shape with a different one, to reduce the number of total shapes.
 					// Try the outer shape first.
-					foreach (List<Vertex> shape in innerShapes.Skip(1).Prepend(outerShape)) {
+					foreach (List<Vertex> shape in innerShapes.Skip(1).Prepend(outerShape))
+					{
 						// Try each shape vertex as a candidate for joining.
-						for (int k = 0; k < shape.Count; k++) {
+						for (int k = 0; k < shape.Count; k++)
+						{
 							// Create a triangle using the candidate shape vertex and two vertices from the inner shape.
 							// If the triangle is entirely inside the sector we can join the two shapes together using
 							// the border of the triangle.into a single shape.
@@ -483,12 +544,14 @@ namespace MZZT.DarkForces {
 								innerShape[(j + 2) % innerShape.Count],
 								shape[(k + shape.Count - 1) % shape.Count],
 								shape[(k + 1) % shape.Count]);
-							if (!pass) {
+							if (!pass)
+							{
 								continue;
 							}
 
 							// angles of 0/180 indicate no volume thus no tri needed.
-							if (angle < 0 || angle > 180) {
+							if (angle < 0 || angle > 180)
+							{
 								tris.Add(map[candidate[0]]);
 								tris.Add(map[candidate[1]]);
 								tris.Add(map[candidate[2]]);
@@ -503,17 +566,20 @@ namespace MZZT.DarkForces {
 							merged = true;
 							break;
 						}
-						if (merged) {
+						if (merged)
+						{
 							break;
 						}
 					}
-					if (merged) {
+					if (merged)
+					{
 						break;
 					}
 				}
 
 				// If we can't merge a shape with any other shape, probably the geometry is screwed up.
-				if (!merged) {
+				if (!merged)
+				{
 					ResourceCache.Instance.AddWarning($"{LevelLoader.Instance.CurrentLevelName}.LEV",
 						$"Sector {sector.Name ?? LevelLoader.Instance.Level.Sectors.IndexOf(sector).ToString()} failed to draw floor and ceiling (probablty invalid geometry).");
 					return Array.Empty<int>();
@@ -530,7 +596,8 @@ namespace MZZT.DarkForces {
 			//int innerShapePos = 0;
 			//int innerPos = 0;
 			//bool mergeInnerShape = outerShape.Count == 3 && innerShapes.Count > 0;
-			while (outerShape.Count > 3 || innerShapes.Count > 0) {
+			while (outerShape.Count > 3 || innerShapes.Count > 0)
+			{
 				Vertex[] candidate;
 				bool pass;
 				float angle;
@@ -550,13 +617,16 @@ namespace MZZT.DarkForces {
 					outerShape[(pos + 3) % outerShape.Count]);
 				//}
 
-				if (!pass) {
+				if (!pass)
+				{
 					//if (!mergeInnerShape) {
 					pos++;
-					if (pos >= outerShape.Count) {
+					if (pos >= outerShape.Count)
+					{
 						pos = 0;
 					}
-					if (pos == lastFound) {
+					if (pos == lastFound)
+					{
 						/*if (innerShapes.Count > 0) {
 							lastFound = 0;
 							pos = 0;
@@ -590,7 +660,8 @@ namespace MZZT.DarkForces {
 				}
 
 				// If this is false there's no volume to the triangle so don't bother adding it.
-				if (angle < 0 || angle > 180) {
+				if (angle < 0 || angle > 180)
+				{
 					tris.Add(map[candidate[0]]);
 					tris.Add(map[candidate[1]]);
 					tris.Add(map[candidate[2]]);
@@ -601,10 +672,13 @@ namespace MZZT.DarkForces {
 					outerShape.InsertRange(pos + 1, innerVertices);
 					innerShapes.RemoveAt(innerShapePos);
 				} else {*/
-				if (pos + 1 == outerShape.Count) {
+				if (pos + 1 == outerShape.Count)
+				{
 					outerShape.RemoveAt(0);
 					pos--;
-				} else {
+				}
+				else
+				{
 					outerShape.RemoveAt(pos + 1);
 				}
 				//}
@@ -621,12 +695,14 @@ namespace MZZT.DarkForces {
 			}
 
 			// If there's only three left, it must be a valid polygon.
-			if (outerShape.Count == 3) {
+			if (outerShape.Count == 3)
+			{
 				Vector2[] vectors = outerShape.Select(x => x.Position.ToUnity()).ToArray();
 				Vector2 wall1dir = vectors[1] - vectors[0];
 				Vector2 wall2dir = vectors[2] - vectors[1];
 				float angle = Vector2.SignedAngle(wall1dir, wall2dir);
-				if (angle < 0 || angle > 180) {
+				if (angle < 0 || angle > 180)
+				{
 					tris.Add(map[outerShape[0]]);
 					tris.Add(map[outerShape[1]]);
 					tris.Add(map[outerShape[2]]);
@@ -860,19 +936,24 @@ namespace MZZT.DarkForces {
 		/// Creates floor and ceiling geometry for a sector.
 		/// </summary>
 		/// <param name="sector">The sector</param>
-		public async Task RenderAsync(Sector sector) {
+		public async Task RenderAsync(Sector sector)
+		{
 			int[] tris = SplitIntoFloorTris(sector);
 
 			// Figure out which vertices are used and renumber only using the used ones.
-			int[] used = tris.Distinct().OrderBy(x => x).ToArray();
+			int[] used = tris.Distinct().OrderBy(x => x).ToArray();            
 
 			tris = tris.Select(x => Array.IndexOf(used, x)).ToArray();
-
-			foreach (HorizontalSurface surface in new[] { sector.Floor, sector.Ceiling }) {
+			
+			foreach (HorizontalSurface surface in new[] { sector.Floor, sector.Ceiling })
+			{
 				DfBitmap bm = null;
-				if (!string.IsNullOrEmpty(surface.TextureFile)) {
+				if (!string.IsNullOrEmpty(surface.TextureFile))
+				{
 					bm = await ResourceCache.Instance.GetBitmapAsync(surface.TextureFile);
-				} else {
+				}
+				else
+				{
 					bm = await ResourceCache.Instance.GetBitmapAsync("DEFAULT.BM");
 				}
 
@@ -882,20 +963,25 @@ namespace MZZT.DarkForces {
 				bool isPlane;
 				bool adjoinAdjacentPlanes;
 				int lightLevel;
-				if (surface == sector.Ceiling && (sector.Flags & SectorFlags.CeilingIsSky) > 0) {
+				if (surface == sector.Ceiling && (sector.Flags & SectorFlags.CeilingIsSky) > 0)
+				{
 					shader = ResourceCache.Instance.PlaneShader;
 					// DF places the actual collider 100 units out for sky/pit.
 					y += 100;
 					isPlane = true;
 					adjoinAdjacentPlanes = sector.Flags.HasFlag(SectorFlags.AdjoinAdjacentSkies);
 					lightLevel = 31;
-				} else if (surface == sector.Floor && (sector.Flags & SectorFlags.FloorIsPit) > 0) {
+				}
+				else if (surface == sector.Floor && (sector.Flags & SectorFlags.FloorIsPit) > 0)
+				{
 					shader = ResourceCache.Instance.PlaneShader;
 					y -= 100;
 					isPlane = true;
 					adjoinAdjacentPlanes = sector.Flags.HasFlag(SectorFlags.AdjoinAdjacentPits);
 					lightLevel = 31;
-				} else {
+				}
+				else
+				{
 					shader = ResourceCache.Instance.SimpleShader;
 					isPlane = false;
 					adjoinAdjacentPlanes = false;
@@ -906,21 +992,24 @@ namespace MZZT.DarkForces {
 					ResourceCache.Instance.ImportBitmap(bm, LevelLoader.Instance.Palette,
 						LevelLoader.Instance.ColorMap, lightLevel),
 					shader) : null;
-				if (isPlane && material != null) {
+				if (isPlane && material != null)
+				{
 					// Ensure parallaxing is done on sky/pit.
 					Parallaxer.Instance.AddMaterial(material);
 				}
 
 				// Determine vertices for mesh. Mesh should be positioned at world coordinates 0, <floor/ceiling level>, 0
-				// So the local coordinates of vertices are actual X, 0, actual Z.
+				// So the local coordinates of vertices are actual X, 0, actual Z.								
+
 				Vector3[] vertices = used.Select(x => sector.Walls[x].LeftVertex)
 					.Select(x => new Vector3(
 						x.Position.X * LevelGeometryGenerator.GEOMETRY_SCALE,
 						0,
 						x.Position.Y * LevelGeometryGenerator.GEOMETRY_SCALE)
 					).ToArray();
-
-				GameObject obj = new GameObject() {
+				
+				GameObject obj = new GameObject()
+				{
 					name = surface == sector.Ceiling ? "Ceiling" : "Floor",
 					layer = LayerMask.NameToLayer("Geometry")
 				};
@@ -933,16 +1022,21 @@ namespace MZZT.DarkForces {
 					0
 				);
 
-				Mesh mesh = new Mesh() {
+				Mesh mesh = new Mesh()
+				{
 					vertices = vertices
 				};
-				if (surface == sector.Ceiling) {
+				if (surface == sector.Ceiling)
+				{
 					// Invert the list to have the normals facing the other way (down).
 					mesh.triangles = tris.Reverse().ToArray();
-				} else {
+				}
+				else
+				{
 					mesh.triangles = tris;
 				}
-				if (material != null) {
+				if (material != null)
+				{
 					// Configure UV for completely normal texture display.
 					// I guess if we wanted to make it more like DF we could hardcode a value of 64 for the texture size.
 					Vector2 offset = new Vector2(
@@ -967,23 +1061,30 @@ namespace MZZT.DarkForces {
 				obj.AddComponent<MeshCollider>();
 
 				// If we are a sky/pit we also need to generate walls to line the sector to make up for the 100 unit change in Y.
-				if (isPlane) {
-					foreach (Wall wall in sector.Walls) {
+				if (isPlane)
+				{
+					foreach (Wall wall in sector.Walls)
+					{
 						float minY = surface.Y;
-						if (wall.Adjoined != null && adjoinAdjacentPlanes) {
-							if (surface == sector.Ceiling && wall.Adjoined.Sector.Flags.HasFlag(SectorFlags.CeilingIsSky)) {
+						if (wall.Adjoined != null && adjoinAdjacentPlanes)
+						{
+							if (surface == sector.Ceiling && wall.Adjoined.Sector.Flags.HasFlag(SectorFlags.CeilingIsSky))
+							{
 								minY = wall.Adjoined.Sector.Ceiling.Y - 100;
 							}
-							if (surface == sector.Floor && wall.Adjoined.Sector.Flags.HasFlag(SectorFlags.FloorIsPit)) {
+							if (surface == sector.Floor && wall.Adjoined.Sector.Flags.HasFlag(SectorFlags.FloorIsPit))
+							{
 								minY = wall.Adjoined.Sector.Floor.Y + 100;
 							}
 						}
 						float maxY = -y;
-						if (surface == sector.Floor) {
+						if (surface == sector.Floor)
+						{
 							maxY = minY;
 							minY = -y;
 						}
-						if (maxY >= minY) {
+						if (maxY >= minY)
+						{
 							continue;
 						}
 

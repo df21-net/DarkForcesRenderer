@@ -17,6 +17,8 @@ namespace MZZT.DarkForces {
 		/// </summary>
 		public static readonly Vector3 KYLE_EYE_POSITION = new Vector3(0, -5.8f, 0);
 
+		public static bool UpdateCamera = true;
+
 		/// <summary>
 		/// The difficulty to use to determine which objects to show.
 		/// </summary>
@@ -69,11 +71,37 @@ namespace MZZT.DarkForces {
 		}
 
 		/// <summary>
+		/// Keeps Track of all the gameObjects by Object ID
+		/// 
+		public List<GameObject> gameObjects = new List<GameObject>();
+
+		/// <summary>
 		/// Delete all objects.
 		/// </summary>
 		public void Clear() {
 			foreach (GameObject child in this.transform.Cast<Transform>().Select(x => x.gameObject).ToArray()) {
 				DestroyImmediate(child);
+			}
+			this.gameObjects.Clear();
+		}
+
+		/// <summary>
+		/// Delete a specific Object by HASH (not object ID#)
+		/// </summary>
+		/// <param name="ObjId">ID of object to delete</param>
+		public void DeleteObjectByHash(DfLevelObjects.Object ObjId)
+		{
+
+			for (int i = 0; i < this.gameObjects.Count; i++)
+			{
+				if (ObjId.GetHashCode().ToString() == this.gameObjects[i].name)
+				{
+					Debug.Log(string.Format("Deleting Object with {0}", ObjId.GetHashCode()));
+					GameObject objToDel = this.gameObjects[i];
+					this.gameObjects.Remove(objToDel);
+					DestroyImmediate(objToDel);
+					break;
+				}
 			}
 		}
 
@@ -106,14 +134,23 @@ namespace MZZT.DarkForces {
 		/// <summary>
 		/// Generate Unity objects for all Dark Forces level objects.
 		/// </summary>
-		public async Task GenerateAsync() {
-			this.Clear();
+		public async Task GenerateAsync(bool updateCamera, List<int> objectFilter ) {
+
+			// Don't bother with empty filters.
+			if (objectFilter == null) this.Clear();
 
 			HashSet<DfLevelObjects.Difficulties> allowedDifficulties = this.TranslateDifficulty();
 
 			Stopwatch watch = new Stopwatch();
 			watch.Start();
-			foreach (DfLevelObjects.Object obj in LevelLoader.Instance.Objects.Objects) {
+			foreach ((DfLevelObjects.Object obj, int i) in LevelLoader.Instance.Objects.Objects.Select((x, i) => (x, i))) { 		
+
+				// Filter pre-build geometry
+				if (objectFilter.Count > 0 && !objectFilter.Contains(i))
+				{
+					continue;
+				}
+
 				GameObject go;
 				ObjectRenderer renderer;
 				switch (obj.Type) {
@@ -149,12 +186,14 @@ namespace MZZT.DarkForces {
 							layer = LayerMask.NameToLayer("Objects")
 						};
 						renderer = go.AddComponent<ObjectRenderer>();
+						renderer.updateCamera = updateCamera;
 						break;
 				}
 
 				await renderer.RenderAsync(obj);
 				this.SetVisible(renderer, allowedDifficulties);
 				go.transform.SetParent(this.transform, true);
+				this.gameObjects.Add(go);
 			}
 
 			watch.Stop();

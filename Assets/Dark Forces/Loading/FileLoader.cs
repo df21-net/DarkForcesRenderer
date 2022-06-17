@@ -45,6 +45,8 @@ namespace MZZT.DarkForces {
 		/// </summary>
 		public string DarkForcesFolder { get => this.darkForcesFolder; set => this.darkForcesFolder = value; }
 
+		public string GobPath;
+
 		/// <summary>
 		/// Try and autodetect the Dark Forces folder.
 		/// </summary>
@@ -131,13 +133,16 @@ namespace MZZT.DarkForces {
 		/// Reads in a GOB file and tracks the files inside of it so we can quickly find them later.
 		/// </summary>
 		/// <param name="path">Path to the GOB file.</param>
-		public async Task AddGobFileAsync(string path) {
+		public async Task AddGobFileAsync(string path, bool rebuild = false) {
 			if (this.DarkForcesFolder != null) {
 				path = Path.Combine(this.DarkForcesFolder, path);
+				GobPath = path;
 			}
 			string key = path.ToUpper();
+
+
 			// Skip if we already loaded it.
-			if (this.gobFiles.ContainsKey(key)) {
+			if (this.gobFiles.ContainsKey(key) && !rebuild) {
 				return;
 			}
 
@@ -153,6 +158,7 @@ namespace MZZT.DarkForces {
 							Offset = offset,
 							Length = size
 						});
+						Debug.Log(string.Format("Added To GOBMap Name = {0} Path = {1} Offset = {2} Length = {3}", name, path, offset, size));
 					}
 					this.gobFiles[key] = files.ToArray();
 				} break;
@@ -231,7 +237,7 @@ namespace MZZT.DarkForces {
 			}
 			// The most recently added GOB/file will be this one, so we are using a mod override if available.
 			ResourceLocation location = results.Last();
-
+			//Debug.Log(string.Format("Name = {0}: Path = {3} Length  = {2} Offset = {1}", name, location.Offset, location.Length, location.FilePath));
 			// Open the GOB/file and read in the data at the specified offset and size.
 			FileStream stream = new FileStream(location.FilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
 			Stream scoped = null;

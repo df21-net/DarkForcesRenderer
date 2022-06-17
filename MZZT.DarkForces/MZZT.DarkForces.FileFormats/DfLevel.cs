@@ -7,6 +7,9 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Schema;
+using Newtonsoft.Json.Schema.Generation;
 
 namespace MZZT.DarkForces.FileFormats {
 	/// <summary>
@@ -249,6 +252,25 @@ namespace MZZT.DarkForces.FileFormats {
 			/// </summary>
 			public Vector2 Position { get; set; }
 
+			// need to override comparisons		
+			public bool Equals(Vertex obj)
+            {
+				if (obj == null) return false;
+				return ((obj.Position.X == this.Position.X) && (obj.Position.Y == this.Position.Y));
+			}
+
+			// need to override equal operator to compare raw positions.
+			public static bool operator ==(Vertex lhs, Vertex rhs)
+			{
+				if ((lhs is null) || (rhs is null))
+				{
+					return false;
+				}
+				return ((lhs.Position.X == rhs.Position.X) && (lhs.Position.Y == rhs.Position.Y));
+			}
+
+			public static bool operator !=(Vertex lhs, Vertex rhs) => !(lhs == rhs);
+
 			object ICloneable.Clone() => this.Clone();
 			public Vertex Clone() => new() {
 				Position = this.Position
@@ -270,7 +292,8 @@ namespace MZZT.DarkForces.FileFormats {
 			/// <summary>
 			/// The sector the wall beongs to.
 			/// </summary>
-			public Sector Sector { get; }
+			[JsonIgnore]
+			public Sector Sector { get; set; }
 
 			/// <summary>
 			/// The left vertex of this wall (when viewing wall from inside the sector).
@@ -283,23 +306,24 @@ namespace MZZT.DarkForces.FileFormats {
 			/// <summary>
 			/// The main surface of this wall. When unadjoined it is the whole wall, when adjoined is the part of the wall over the adjoin (if visible).
 			/// </summary>
-			public WallSurface MainTexture { get; private set; } = new();
+			public WallSurface MainTexture { get; set; } = new();
 			/// <summary>
 			/// When adjoined, this represents the part of the wall above the adjoin if any.
 			/// </summary>
-			public WallSurface TopEdgeTexture { get; private set; } = new();
+			public WallSurface TopEdgeTexture { get; set; } = new();
 			/// <summary>
 			/// When adjoined, this represents the part of the wall below the adjoin if any.
 			/// </summary>
-			public WallSurface BottomEdgeTexture { get; private set; } = new();
+			public WallSurface BottomEdgeTexture { get; set; } = new();
 			/// <summary>
 			/// Represents a sign texture on the wall.
 			/// </summary>
-			public WallSurface SignTexture { get; private set; } = new();
+			public WallSurface SignTexture { get; set; } = new();
 
 			/// <summary>
 			/// The wall this wall is adjoined to.
 			/// </summary>
+			[JsonIgnore]
 			public Wall Adjoined { get; set; }
 
 			/// <summary>
@@ -355,6 +379,7 @@ namespace MZZT.DarkForces.FileFormats {
 		/// <summary>
 		/// A room with a consistent floor and ceiling level and walls.
 		/// </summary>
+		[Serializable]
 		public class Sector {
 			/// <summary>
 			/// An optional name for the sector, required to add scripts to it or one of its walls.
@@ -367,11 +392,11 @@ namespace MZZT.DarkForces.FileFormats {
 			/// <summary>
 			/// The floor of the sector.
 			/// </summary>
-			public HorizontalSurface Floor { get; private set; } = new();
+			public HorizontalSurface Floor { get; set; } = new();
 			/// <summary>
 			/// The ceiling of the sector.
 			/// </summary>
-			public HorizontalSurface Ceiling { get; private set; } = new();
+			public HorizontalSurface Ceiling { get; set; } = new();
 			/// <summary>
 			/// Allows specifying a Y value relative to floor height to simulate water on the floor or an upper walkway.
 			/// </summary>
@@ -398,7 +423,21 @@ namespace MZZT.DarkForces.FileFormats {
 			/// <summary>
 			/// The walls this sector has.
 			/// </summary>
-			public List<Wall> Walls { get; } = new();
+			public List<Wall> Walls { get; set; } = new();
+
+
+			/// <summary>
+			/// Generate hashcode for comparisons
+			/// </summary>
+			public override int GetHashCode()
+			{
+				int hash = 0;
+				foreach ((Wall wallInfo, int j) in this.Walls.Select((x, i) => (x, i)))
+				{
+					hash = hash ^ wallInfo.LeftVertex.Position.GetHashCode() << (2 + j);
+				}
+				return hash;
+			}
 
 			public Sector Clone(Dictionary<Wall, Wall> wallClones) {
 				Dictionary<Vertex, Vertex> vertexClones = new();
@@ -413,6 +452,9 @@ namespace MZZT.DarkForces.FileFormats {
 					Name = this.Name,
 					UnusuedFlags2 = this.UnusuedFlags2
 				};
+
+
+
 				clone.Walls.AddRange(this.Walls.Select(x => x.Clone(clone, wallClones, vertexClones)));
 				return clone;
 			}
@@ -438,7 +480,7 @@ namespace MZZT.DarkForces.FileFormats {
 		/// <summary>
 		/// Sectors in this level.
 		/// </summary>
-		public List<Sector> Sectors { get; } = new();
+		public List<Sector> Sectors { get; set;  } = new();
 
 		public override bool CanLoad => true;
 		

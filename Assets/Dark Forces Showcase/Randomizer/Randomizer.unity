@@ -101506,7 +101506,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7067844563058239141, guid: 4c55d9261fada9f44a93bda9e04895e8, type: 3}
       propertyPath: darkForcesFolder
-      value: C:\Users\mzzt\dos\PROGRAMS\GAMES\DARK
+      value: F:\Program Files (x86)\Steam\steamapps\common\Dark Forces\Game
       objectReference: {fileID: 0}
     - target: {fileID: 7067844563058239146, guid: 4c55d9261fada9f44a93bda9e04895e8, type: 3}
       propertyPath: m_Name

@@ -101,7 +101,7 @@ namespace MZZT.DarkForces.Showcase {
 			if (this.CommandLineDarkForcesFolder != null && !File.Exists(Path.Combine(this.CommandLineDarkForcesFolder, "DARK.GOB"))) {
 				this.CommandLineDarkForcesFolder = null;
 				return new ParseResult() {
-					Error = "Invalid Dark Forces folder."
+					Error = "Invalid Dark Forces folder [" + this.CommandLineDarkForcesFolder + "]"
 				};
 			}
 			if (this.CommandLineTool != null) {

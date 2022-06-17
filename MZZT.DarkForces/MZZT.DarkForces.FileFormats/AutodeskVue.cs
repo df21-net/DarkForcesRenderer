@@ -8,6 +8,8 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
+
+
 namespace MZZT.DarkForces.FileFormats {
 	/// <summary>
 	/// The data from a VUE file.

@@ -20,7 +20,11 @@ namespace MZZT.DarkForces {
 		public async Task RenderAsync(Sector sector) {
 			this.Sector = sector;
 
-			this.gameObject.name = sector.Name ?? LevelLoader.Instance.Level.Sectors.IndexOf(sector).ToString();
+			// We now store the sector name as the HASH instead of their ID so we can reference them later.
+			this.gameObject.name = sector.GetHashCode().ToString();
+			//LevelLoader.Instance.Level.Sectors.IndexOf(sector).ToString();
+			//this.gameObject.name = sector.Name ?? LevelLoader.Instance.Level.Sectors.IndexOf(sector).ToString();
+			//this.gameObject.tag = LevelLoader.Instance.Level.Sectors.IndexOf(sector).ToString();
 
 			this.transform.position = new Vector3(0, -sector.Floor.Y * LevelGeometryGenerator.GEOMETRY_SCALE, 0);
 
@@ -38,5 +42,8 @@ namespace MZZT.DarkForces {
 				await wallRenderer.RenderAsync(wallInfo);
 			}
 		}
+
 	}
+
+
 }

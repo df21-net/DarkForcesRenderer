@@ -75,7 +75,7 @@ namespace MZZT.DarkForces {
 			// Make the sprite face the camera all the time.
 			Vector3 face = -Camera.main.transform.forward;
 			face.y = 0;
-			this.transform.rotation = Quaternion.LookRotation(face, Vector3.up);
+			//this.transform.rotation = Quaternion.LookRotation(face, Vector3.up);
 
 			this.UpdateSprite();
 		}

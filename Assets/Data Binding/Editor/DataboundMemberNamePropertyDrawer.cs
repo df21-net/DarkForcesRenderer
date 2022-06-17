@@ -83,7 +83,6 @@ namespace MZZT.DataBinding {
 				property.stringValue = input;
 			}
 
-			EditorGUI.EndProperty();
 		}
 	}
 }

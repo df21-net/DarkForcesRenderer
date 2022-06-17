@@ -6,11 +6,13 @@ using static MZZT.DarkForces.FileFormats.DfLevel;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
-namespace MZZT.DarkForces {
+namespace MZZT.DarkForces
+{
 	/// <summary>
 	/// Create a mesh for a vertical wall.
 	/// </summary>
-	public class WallRenderer : MonoBehaviour {
+	public class WallRenderer : MonoBehaviour
+	{
 		/// <summary>
 		/// The wall to create a mesh for.
 		/// </summary>
@@ -26,10 +28,12 @@ namespace MZZT.DarkForces {
 		/// <param name="forcePlaneShader">Use the sky/pit shader.</param>
 		/// <returns>The created GameObject with mesh.</returns>
 		public static async Task<GameObject> CreateMeshAsync(float minY, float maxY, WallSurface surface,
-			Wall wall, bool forcePlaneShader = false) {
+			Wall wall, bool forcePlaneShader = false)
+		{
 
 			string textureFile = surface.TextureFile;
-			if (wall.Sector.Flags.HasFlag(SectorFlags.DrawWallsAsSkyPit)) {
+			if (wall.Sector.Flags.HasFlag(SectorFlags.DrawWallsAsSkyPit))
+			{
 				// TODO this is not correct.
 				// Should probably create a new shader to have sky texture on upper half of screen and pit on lower half
 				// Potentially this material would also be applied to sky and pit surfaces in general.
@@ -39,9 +43,12 @@ namespace MZZT.DarkForces {
 			}
 
 			DfBitmap bm = null;
-			if (!string.IsNullOrEmpty(textureFile)) {
+			if (!string.IsNullOrEmpty(textureFile))
+			{
 				bm = await ResourceCache.Instance.GetBitmapAsync(textureFile);
-			} else {
+			}
+			else
+			{
 				bm = await ResourceCache.Instance.GetBitmapAsync("DEFAULT.BM");
 			}
 
@@ -50,11 +57,16 @@ namespace MZZT.DarkForces {
 				wall.Adjoined != null;
 			bool usePlaneShader = forcePlaneShader || wall.Sector.Flags.HasFlag(SectorFlags.DrawWallsAsSkyPit);
 			Shader shader;
-			if (usePlaneShader) {
+			if (usePlaneShader)
+			{
 				shader = ResourceCache.Instance.PlaneShader;
-			} else if (transparent) {
+			}
+			else if (transparent)
+			{
 				shader = ResourceCache.Instance.TransparentShader;
-			} else {
+			}
+			else
+			{
 				shader = ResourceCache.Instance.SimpleShader;
 			}
 
@@ -62,14 +74,16 @@ namespace MZZT.DarkForces {
 				ResourceCache.Instance.ImportBitmap(bm, LevelLoader.Instance.Palette, LevelLoader.Instance.ColorMap,
 					usePlaneShader ? 31 : wall.Sector.LightLevel, transparent),
 				shader) : null;
-			if (usePlaneShader && material != null) {
+			if (usePlaneShader && material != null)
+			{
 				Parallaxer.Instance.AddMaterial(material);
 			}
 
 			Vector2 left = wall.LeftVertex.Position.ToUnity();
 			Vector2 right = wall.RightVertex.Position.ToUnity();
 
-			GameObject obj = new GameObject {
+			GameObject obj = new GameObject
+			{
 				name = surface == wall.TopEdgeTexture ? "Top" :
 					(surface == wall.BottomEdgeTexture ? "Bot" :
 					(surface == wall.MainTexture ? "Mid" :
@@ -108,12 +122,14 @@ namespace MZZT.DarkForces {
 			float width = Vector2.Distance(left, right);
 			float height = minY - maxY;
 
-			Mesh mesh = new Mesh {
+			Mesh mesh = new Mesh
+			{
 				vertices = vertices,
 				triangles = new int[] { 0, 1, 3, 1, 2, 3 }
 			};
 
-			if (material != null) {
+			if (material != null)
+			{
 				Vector2 offset = new Vector2(
 					surface.TextureOffset.X / material.mainTexture.width / LevelGeometryGenerator.TEXTURE_SCALE,
 					surface.TextureOffset.Y / material.mainTexture.height / LevelGeometryGenerator.TEXTURE_SCALE
@@ -136,9 +152,10 @@ namespace MZZT.DarkForces {
 					offset
 				};
 			}
-			
+
 			WallTextureAndMapFlags flags = wall.TextureAndMapFlags;
-			if ((flags & WallTextureAndMapFlags.FlipTextureHorizontally) > 0) {
+			if ((flags & WallTextureAndMapFlags.FlipTextureHorizontally) > 0)
+			{
 				mesh.uv = mesh.uv.Select(x => new Vector2(-x.x, x.y)).ToArray();
 			}
 
@@ -156,18 +173,22 @@ namespace MZZT.DarkForces {
 			// If there's a sign texture, show it.
 			// TODO Do the sign texture in a shader. This would allow it to be properly clipped if it is overlapping
 			// edge of the wall. Here I am just making a second mesh for the sign.
-			if (!usePlaneShader && wall.SignTexture.TextureFile != null) {
+			if (!usePlaneShader && wall.SignTexture.TextureFile != null)
+			{
 				bm = null;
-				if (!string.IsNullOrEmpty(wall.SignTexture.TextureFile)) {
+				if (!string.IsNullOrEmpty(wall.SignTexture.TextureFile))
+				{
 					bm = await ResourceCache.Instance.GetBitmapAsync(wall.SignTexture.TextureFile);
 				}
-				if (bm != null) {
+				if (bm != null)
+				{
 					material = ResourceCache.Instance.GetMaterial(
 						ResourceCache.Instance.ImportBitmap(bm, LevelLoader.Instance.Palette,
 							LevelLoader.Instance.ColorMap, wall.Sector.LightLevel),
 						ResourceCache.Instance.TransparentShader);
 
-					GameObject sign = new GameObject() {
+					GameObject sign = new GameObject()
+					{
 						name = "SIGN",
 						layer = LayerMask.NameToLayer("Geometry")
 					};
@@ -206,7 +227,8 @@ namespace MZZT.DarkForces {
 						Vector3.zero
 					};
 
-					mesh = new Mesh {
+					mesh = new Mesh
+					{
 						vertices = vertices,
 						triangles = new int[] { 0, 1, 3, 1, 2, 3 },
 						uv = new Vector2[] {
@@ -234,12 +256,14 @@ namespace MZZT.DarkForces {
 		/// Generate a wall.
 		/// </summary>
 		/// <param name="wall">The wall.</param>
-		public async Task RenderAsync(Wall wall) {
+		public async Task RenderAsync(Wall wall)
+		{
 			this.Wall = wall;
 
 			Sector sector = wall.Sector;
 			// If the height of the sector is 0, don't bother creating any walls.
-			if (sector.Floor.Y <= sector.Ceiling.Y || (sector.Flags & SectorFlags.SectorIsDoor) > 0) {
+			if (sector.Floor.Y <= sector.Ceiling.Y || (sector.Flags & SectorFlags.SectorIsDoor) > 0)
+			{
 				return;
 			}
 			/*if ((sector.Flags & SectorFlags.DrawWallsAsSkyPit) > 0) {
@@ -252,28 +276,33 @@ namespace MZZT.DarkForces {
 			float adjoinedMinY = minY;
 			float adjoinedMaxY = maxY;
 			// Adjoined walls aren't visible (usually), but we still want to render top and bottom edges.
-			if (wall.Adjoined != null) {
+			if (wall.Adjoined != null)
+			{
 				adjoinedMinY = wall.Adjoined.Sector.Floor.Y;
 				adjoinedMaxY = wall.Adjoined.Sector.Ceiling.Y;
 				// If the adjoined sector is a door then we should adjust the height of the edges.
-				if ((wall.Adjoined.Sector.Flags & SectorFlags.SectorIsDoor) > 0) {
+				if ((wall.Adjoined.Sector.Flags & SectorFlags.SectorIsDoor) > 0)
+				{
 					adjoinedMaxY = adjoinedMinY;
 				}
 				if (adjoinedMaxY > maxY && (!sector.Flags.HasFlag(SectorFlags.AdjoinAdjacentSkies | SectorFlags.CeilingIsSky) ||
-					!wall.Adjoined.Sector.Flags.HasFlag(SectorFlags.CeilingIsSky))) {
+					!wall.Adjoined.Sector.Flags.HasFlag(SectorFlags.CeilingIsSky)))
+				{
 
 					GameObject obj = await CreateMeshAsync(adjoinedMaxY, maxY, wall.TopEdgeTexture, wall);
 					obj.transform.SetParent(this.transform, true);
 				}
 				if (adjoinedMinY < minY && (!sector.Flags.HasFlag(SectorFlags.AdjoinAdjacentPits | SectorFlags.FloorIsPit) ||
-					!wall.Adjoined.Sector.Flags.HasFlag(SectorFlags.FloorIsPit))) {
+					!wall.Adjoined.Sector.Flags.HasFlag(SectorFlags.FloorIsPit)))
+				{
 
 					GameObject obj = await CreateMeshAsync(minY, adjoinedMinY, wall.BottomEdgeTexture, wall);
 					obj.transform.SetParent(this.transform, true);
 				}
 			}
 
-			if (wall.Adjoined == null || (wall.TextureAndMapFlags & WallTextureAndMapFlags.ShowTextureOnAdjoin) > 0) {
+			if (wall.Adjoined == null || (wall.TextureAndMapFlags & WallTextureAndMapFlags.ShowTextureOnAdjoin) > 0)
+			{
 				GameObject obj = await CreateMeshAsync(adjoinedMinY, adjoinedMaxY, wall.MainTexture, wall);
 				obj.transform.SetParent(this.transform, true);
 			}
