@@ -83,15 +83,17 @@ namespace MZZT.DarkForces.FileFormats {
 			/// <summary>
 			/// The logic script this object uses.
 			/// </summary>
+			/// 
 			public string Logic { get; set; }
-
-
-			/// <summary>
-			/// Need the hash to to compare the vector positions.
-			/// </summary>
+			
 			public override int GetHashCode()
 			{
-				return this.Position.GetHashCode() ^ this.EulerAngles.GetHashCode() << 2 ;				
+				string filehash = 'SPIRIT'.GetHashCode();
+				if (this.FileName is not null)
+                {
+					filehash = this.FileName.GetHashCode();
+				}
+				return this.Position.GetHashCode() ^ this.EulerAngles.GetHashCode() << 2 ^ filehash << 4;				
 			}
 
 			object ICloneable.Clone() => this.Clone();
