@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
+using System.Globalization;
 
 namespace MZZT.DarkForces {
   /// <summary>
@@ -22,7 +23,8 @@ namespace MZZT.DarkForces {
     private StreamSynthesizer midiStreamSynthesizer;
 
     private void Start() {
-      this.GetComponent<AudioSource>().spatialize = false;
+     Debug.Log(string.Format("Initial CurrentCulture is {0}.", CultureInfo.CurrentCulture.Name));
+     this.GetComponent<AudioSource>().spatialize = false;
 
       this.midiStreamSynthesizer = new StreamSynthesizer(44100, 2, 1024, 40);
       this.sampleBuffer = new float[this.midiStreamSynthesizer.BufferSize];

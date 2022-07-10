@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using MZZT.DarkForces.FileFormats;
+using System.Globalization;
 
 
 namespace MZZT.DarkForces.Showcase {
@@ -41,6 +42,15 @@ namespace MZZT.DarkForces.Showcase {
 		private async void Start() {
 			// This is here in case you run directly from the LevelExplorer sccene instead of the menu.
 			Debug.Log("New Start");
+
+
+			// Unity won't process non-american formats.
+			Debug.Log(string.Format("Initial CurrentCulture is {0}.", CultureInfo.CurrentCulture.Name));
+
+			CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+			CultureInfo.CurrentCulture = new CultureInfo("en-US");
+			Debug.Log(string.Format("Changing Default Culture to {0}.", CultureInfo.DefaultThreadCurrentCulture.Name));
+
 			if (!FileLoader.Instance.Gobs.Any()) {
 				await FileLoader.Instance.LoadStandardGobFilesAsync();
 			}

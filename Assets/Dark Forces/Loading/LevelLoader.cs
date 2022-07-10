@@ -84,10 +84,8 @@ namespace MZZT.DarkForces {
 			Debug.Log(string.Format("total level list size is {0}", this.LevelList.Levels.Count));
 
 			if (addHiddenLevels) {
-				Debug.Log("oh no ... going for hidden maps");
 				// Find the GOB file with the levels.
 				string path = Mod.Instance.Gob ?? Path.Combine(FileLoader.Instance.DarkForcesFolder, "DARK.GOB");
-				Debug.Log("Got past path");
 				// Find any .LEV files in that GOB.
 				string[] levels = FileLoader.Instance.FindGobFiles("*.LEV", path).Select(x => x.ToUpper()).ToArray();
 				// Exclude any files in the level list.
