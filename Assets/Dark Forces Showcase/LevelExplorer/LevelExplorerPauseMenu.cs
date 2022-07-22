@@ -45,9 +45,11 @@ namespace MZZT.DarkForces.Showcase {
 
 		protected override void Start() {
 			base.Start();
-
+			
 			LevelMusic.Instance.GetComponent<AudioSource>().mute = PlayerPrefs.GetInt("PlayMusic", 1) == 0;
 			LevelMusic.Instance.GetComponent<AudioSource>().volume = PlayerPrefs.GetFloat("Volume", 1);
+			this.camPositions.isOn = PlayerPrefs.GetInt("CameraPosEnabled", 1) == 1;
+			this.cameraControl.CamPosition = this.camPositions.isOn;
 		}
 
 		private int[] layers;
@@ -85,6 +87,7 @@ namespace MZZT.DarkForces.Showcase {
 			base.ApplyMenuChanges();
 
 			PlayerPrefs.SetInt("ShowWarnings", (ResourceCache.Instance.ShowWarnings = this.warnings.isOn) ? 1 : 0);
+			PlayerPrefs.SetInt("CameraPosEnabled", (this.camPositions.isOn == true) ? 1 : 0);
 		}
 
 		public override async Task CloseMenuAsync() {

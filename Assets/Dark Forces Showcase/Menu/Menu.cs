@@ -31,7 +31,10 @@ namespace MZZT.DarkForces.Showcase {
 		[SerializeField]
 		private GameObject actionsBar = null;
 
+		public static Texture2D cursorTexture = null;
+
 		private static bool init;
+
 		private void ParseCommandLine() {
 			if (init) {
 				return;
@@ -280,6 +283,7 @@ namespace MZZT.DarkForces.Showcase {
 					if (cursor != null) {
 						Texture2D texture = ResourceCache.Instance.ImportDelt(cursor, pltt, keepTextureReadable: true);
 						Cursor.SetCursor(texture, Vector2.zero, CursorMode.Auto);
+						cursorTexture = texture;
 					}
 				}
 

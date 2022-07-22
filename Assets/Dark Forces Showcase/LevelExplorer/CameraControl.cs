@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 using MZZT.DarkForces.FileFormats;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MZZT.DarkForces;
-
+using MZZT.DarkForces.Showcase;
 
 namespace MZZT {
 
@@ -76,6 +77,8 @@ namespace MZZT {
 			this.running = context.ReadValueAsButton();
 		}
 
+		private bool panCursor = false;
+
 		void OnGUI()
 		{
 			if (this.enableCameraPos == true)
@@ -125,22 +128,59 @@ namespace MZZT {
 			//camera.GetComponent<Rigidbody>().AddForce(direction);
 		}
 
-		private void Update() {
-			Cursor.lockState = Time.timeScale > 0 && Application.isFocused ? CursorLockMode.Locked : CursorLockMode.None;
-			Cursor.visible = Time.timeScale <= 0 || !Application.isFocused;
+		private void Update()
+		{
+			// Set Panning cursor.
+			PanKeyPressed();
 
-			if (Time.timeScale > 0) {
-				if (this.moveDelta != Vector2.zero) {
-					this.Move(this.moveDelta);
-				}
-				if (this.lookDelta != Vector2.zero) {
-					this.Look(this.lookDelta);
-				}
-				if (this.upDownDelta != 0) {
-					this.UpDown(this.upDownDelta);
-				}
+			if (!panCursor)
+			{
+				Cursor.lockState = Time.timeScale > 0 && Application.isFocused ? CursorLockMode.Locked : CursorLockMode.None;
+				Cursor.visible = Time.timeScale <= 0 || !Application.isFocused;
 			}
 
+
+			//Debug.Log(string.Format("Lock state = {0}", Cursor.lockState));
+
+			if (!Cursor.visible)
+			{
+				if (Time.timeScale > 0)
+				{
+					if (this.moveDelta != Vector2.zero)
+					{
+						this.Move(this.moveDelta);
+					}
+					if (this.lookDelta != Vector2.zero)
+					{
+						this.Look(this.lookDelta);
+					}
+					if (this.upDownDelta != 0)
+					{
+						this.UpDown(this.upDownDelta);
+					}
+				}
+			}		
+
+		}
+
+		// Special function - when you hold ALT you can now pan your mouse outside the renderer engine. 
+		void PanKeyPressed()
+		{
+			Keyboard kboard = Keyboard.current;
+			
+			if (kboard[Key.LeftAlt].wasPressedThisFrame)
+            {
+				Texture2D texture = MZZT.DarkForces.Showcase.Menu.cursorTexture;
+				Cursor.SetCursor(texture, Vector2.zero, CursorMode.Auto);
+				Cursor.lockState = CursorLockMode.None;
+				Cursor.visible = true;
+				panCursor = true;
+			}
+
+			if (kboard[Key.LeftAlt].wasReleasedThisFrame)
+			{
+				panCursor = false;
+			}
 		}
 	}
 }

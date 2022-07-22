@@ -43,10 +43,12 @@ namespace MZZT.DarkForces.Showcase {
 			// This is here in case you run directly from the LevelExplorer sccene instead of the menu.
 			Debug.Log("New Start");
 
+			int width = PlayerPrefs.GetInt("width", Screen.width);
+			int height = PlayerPrefs.GetInt("height", Screen.height);
+			bool full = PlayerPrefs.GetInt("fullscreen", 0) == 0 ? false : true ;
+			Screen.SetResolution(width, height, full);
 
-			// Unity won't process non-american formats.
-			Debug.Log(string.Format("Initial CurrentCulture is {0}.", CultureInfo.CurrentCulture.Name));
-
+			// Unity won't process commas
 			CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
 			CultureInfo.CurrentCulture = new CultureInfo("en-US");
 			Debug.Log(string.Format("Changing Default Culture to {0}.", CultureInfo.DefaultThreadCurrentCulture.Name));
@@ -489,7 +491,14 @@ namespace MZZT.DarkForces.Showcase {
 			}
         }
 
-
+		private void OnApplicationQuit()
+		{
+			PlayerPrefs.SetInt("width", Screen.width);
+			PlayerPrefs.SetInt("height", Screen.height);
+			PlayerPrefs.SetInt("fullscreen", (Screen.fullScreen == true) ? 1 : 0);
+		}
 
 	}
+
+
 }
