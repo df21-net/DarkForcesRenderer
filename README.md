@@ -8,8 +8,12 @@ Purchase a copy of the game on [Steam](https://store.steampowered.com/app/32400/
 
 This toolkit is intended to allow for .NET/Unity developers to consume or generate Dark Forces data files, as well as provide additional tools to Unity developers to create Dark Forces clones or toolkits.
 
+## Update July 2022
 
-## Update 2022
+The new version built for WDFUSE (version 3.00+) with full support for live updates.
+
+
+## Update February 2022
 
 This new version communicates with Dark Forces editor WDFUSE (version 2.70+) . Additionally, a new overlay showing game positions has been added
 
