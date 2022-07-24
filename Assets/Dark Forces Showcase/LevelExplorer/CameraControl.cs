@@ -163,6 +163,11 @@ namespace MZZT {
 
 		}
 
+		void OnApplicationFocus()
+        {
+			panCursor = false;
+		}
+
 		// Special function - when you hold ALT you can now pan your mouse outside the renderer engine. 
 		void PanKeyPressed()
 		{
